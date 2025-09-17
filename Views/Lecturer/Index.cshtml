@@ -1,0 +1,46 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model IEnumerable<CMCS.Web.Models.Lecturer>
+
+@{
+    ViewData["Title"] = "Lecturers";
+}
+
+<h1>Lecturers</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New Lecturer</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Lecturer ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Hourly Rate</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model)
+{
+    <tr>
+        <td>@item.LecturerId</td>
+        <td>@item.User?.FullName</td>  @* Assuming your User model has FullName; adjust to FirstName/LastName *@
+        <td>@item.User?.Email</td>
+        <td>@item.HourlyRate.ToString("C")</td>
+        <td>
+            <a asp-action="Edit" asp-route-id="@item.LecturerId" class="btn btn-sm btn-warning">Edit</a>
+            <a asp-action="Details" asp-route-id="@item.LecturerId" class="btn btn-sm btn-info">Details</a>
+            <a asp-action="Delete" asp-route-id="@item.LecturerId" class="btn btn-sm btn-danger">Delete</a>
+        </td>
+    </tr>
+}
+    </tbody>
+</table>
+
+

@@ -1,0 +1,94 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model CMCS.Web.Models.ViewModels.ClaimCreateViewModel
+@{
+    ViewData["Title"] = "Submit Claim";
+}
+
+<h2>Submit Monthly Claim</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label asp-for="LecturerId">Lecturer</label>
+        <select asp-for="LecturerId" class="form-select" asp-items="@(new SelectList(ViewBag.Lecturers, "LecturerId", "Name"))"></select>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <label asp-for="PeriodMonth">Month</label>
+            <input asp-for="PeriodMonth" class="form-control" />
+        </div>
+        <div class="col">
+            <label asp-for="PeriodYear">Year</label>
+            <input asp-for="PeriodYear" class="form-control" />
+        </div>
+    </div>
+
+    <h4>Claim Items</h4>
+    <table class="table" id="itemsTable">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Hours</th>
+                <th>Rate</th>
+                <th>Amount</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- rows will be added by JS -->
+        </tbody>
+    </table>
+    <button type="button" id="addRow" class="btn btn-secondary">Add Item</button>
+
+    <div class="mb-3 mt-3">
+        <label>Supporting documents</label>
+        <input type="file" name="Files" multiple class="form-control" />
+        <small class="form-text text-muted">Allowed: PDF, JPG, PNG. Max 10 MB per file (enforce server-side).</small>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit Claim</button>
+</form>
+
+@section Scripts {
+    <script>
+        let index = 0;
+        document.getElementById('addRow').addEventListener('click', () => addRow());
+        function addRow(desc = '', hours = 0, rate = 0) {
+            const tbody = document.querySelector('#itemsTable tbody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input name="ClaimItems[${index}].Description" class="form-control" value="${desc}" /></td>
+                <td><input name="ClaimItems[${index}].HoursWorked" type="number" step="0.01" min="0" class="form-control hours" value="${hours}" /></td>
+                <td><input name="ClaimItems[${index}].HourlyRate" type="number" step="0.01" min="0" class="form-control rate" value="${rate}" /></td>
+                <td><input name="ClaimItems[${index}].Amount" readonly class="form-control amount" value="0.00" /></td>
+                <td><button type="button" class="btn btn-danger remove">Remove</button></td>
+            `;
+            tbody.appendChild(row);
+
+            // wire up remove
+            row.querySelector('.remove').addEventListener('click', () => row.remove());
+
+            // calculate amount when hours or rate change
+            const hoursInput = row.querySelector('.hours');
+            const rateInput = row.querySelector('.rate');
+            const amountInput = row.querySelector('.amount');
+
+            function recalc() {
+                const h = parseFloat(hoursInput.value || 0);
+                const r = parseFloat(rateInput.value || 0);
+                amountInput.value = (h * r).toFixed(2);
+            }
+            hoursInput.addEventListener('input', recalc);
+            rateInput.addEventListener('input', recalc);
+
+            index++;
+        }
+
+        // add one blank row initially
+        addRow();
+    </script>
+}
